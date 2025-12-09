@@ -4,7 +4,10 @@ services:
     container_name: ml-drawing-data-collection
     ports:
       - "3000:3000"
+    environment:
+      - DATA_DIR=/app/data
     volumes:
-      # Mount volume to persist drawing data
+      # Mount volume to persist drawing data on host machine
+      # The ./data directory will be created automatically if it doesn't exist
       - ./data:/app/data
     restart: unless-stopped

@@ -42,7 +42,7 @@ const server = http.createServer((req, res) => {
                 
                 // Save to file (optional)
                 const timestamp = Date.now();
-                const dataDir = fs.existsSync('/app/data') ? '/app/data' : '.';
+                const dataDir = process.env.DATA_DIR || (fs.existsSync('/app/data') ? '/app/data' : '.');
                 const filename = path.join(dataDir, `drawing_${data.user}_${timestamp}.json`);
                 fs.writeFile(filename, JSON.stringify(data, null, 2), (err) => {
                     if (err) {
