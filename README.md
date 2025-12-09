@@ -16,10 +16,36 @@ A web application for collecting gesture drawing data. Users draw 5-point stars 
 
 - `index.html` - Main web application (standalone, no dependencies)
 - `server.js` - Simple Node.js test server for development
+- `Dockerfile` - Docker image configuration
+- `docker-compose.yml` - Docker Compose configuration for easy deployment
+- `.dockerignore` - Files to exclude from Docker image
 
 ## Usage
 
-### Option 1: With Test Server (Development)
+### Option 1: With Docker (Recommended)
+
+1. Build and start the container:
+```bash
+docker-compose up -d
+```
+
+2. Open http://localhost:3000/ in your browser
+
+3. Enter your username and start drawing!
+
+4. Drawing data will be saved in the `./data` directory on your host machine
+
+To stop the container:
+```bash
+docker-compose down
+```
+
+To view logs:
+```bash
+docker-compose logs -f
+```
+
+### Option 2: With Test Server (Development)
 
 1. Start the test server:
 ```bash
@@ -30,7 +56,7 @@ node server.js
 
 3. Enter your username and start drawing!
 
-### Option 2: With Your Own Backend
+### Option 3: With Your Own Backend
 
 1. Serve `index.html` from your web server
 
