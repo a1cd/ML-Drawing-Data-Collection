@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ML Drawing Data Collection</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            touch-action: none;
+        }
+        
+        #canvas {
+            border: 2px solid #333;
+            cursor: crosshair;
+            touch-action: none;
+        }
+        
+        .controls {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        
+        .info {
+            margin-top: 10px;
+            text-align: center;
+        }
+        
+        input {
+            padding: 8px;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Draw a 5-Point Star</h1>
+    <div class="info">
+        <label for="username">Username: </label>
+        <input type="text" id="username" placeholder="Enter your name or code" value="">
+    </div>
+    <div class="info">
+        <div id="drawingCount">Drawing: 0 / 30</div>
+    </div>
+    <canvas id="canvas" width="400" height="400"></canvas>
+    <div class="controls">
+        <button id="clearBtn">Clear</button>
+        <button id="saveBtn">Save</button>
+    </div>
+    <div class="info">
+        <div id="status"></div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const clearBtn = document.getElementById('clearBtn');
+        const saveBtn = document.getElementById('saveBtn');
+        const usernameInput = document.getElementById('username');
+        const drawingCountDisplay = document.getElementById('drawingCount');
+        const statusDisplay = document.getElementById('status');
+        
+        let points = [];
+        let isDrawing = false;
+        let drawingCount = 0;
+        const maxDrawings = 30;
+        
+        // Set up canvas for drawing
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        
+        function updateDrawingCount() {
+            drawingCountDisplay.textContent = `Drawing: ${drawingCount} / ${maxDrawings}`;
+        }
+        
+        function updateStatus(message, isError = false) {
+            statusDisplay.textContent = message;
+            statusDisplay.style.color = isError ? 'red' : 'green';
+            setTimeout(() => {
+                statusDisplay.textContent = '';
+            }, 3000);
+        }
+        
+        function getPosition(e) {
+            const rect = canvas.getBoundingClientRect();
+            const x = (e.clientX || e.touches?.[0]?.clientX) - rect.left;
+            const y = (e.clientY || e.touches?.[0]?.clientY) - rect.top;
+            return { x, y };
+        }
+        
+        function recordPoint(e) {
+            const pos = getPosition(e);
+            const x = pos.x / canvas.width;  // normalize to [0,1]
+            const y = pos.y / canvas.height; // normalize to [0,1]
+            const time = performance.now();
+            
+            points.push([x, y, time]);
+            
+            // Draw on canvas
+            const canvasX = pos.x;
+            const canvasY = pos.y;
+            
+            if (points.length === 1) {
+                ctx.beginPath();
+                ctx.moveTo(canvasX, canvasY);
+            } else {
+                ctx.lineTo(canvasX, canvasY);
+                ctx.stroke();
+            }
+        }
+        
+        function handlePointerDown(e) {
+            e.preventDefault();
+            isDrawing = true;
+            recordPoint(e);
+        }
+        
+        function handlePointerMove(e) {
+            e.preventDefault();
+            if (isDrawing) {
+                recordPoint(e);
+            }
+        }
+        
+        function handlePointerUp(e) {
+            e.preventDefault();
+            isDrawing = false;
+        }
+        
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            points = [];
+            isDrawing = false;
+        }
+        
+        async function saveDrawing() {
+            const username = usernameInput.value.trim();
+            
+            if (!username) {
+                updateStatus('Please enter a username', true);
+                return;
+            }
+            
+            if (points.length === 0) {
+                updateStatus('No drawing to save', true);
+                return;
+            }
+            
+            const data = {
+                user: username,
+                points: points
+            };
+            
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    drawingCount++;
+                    updateDrawingCount();
+                    updateStatus(`Drawing ${drawingCount} saved successfully!`);
+                    clearCanvas();
+                    
+                    if (drawingCount >= maxDrawings) {
+                        updateStatus(`Congratulations! All ${maxDrawings} drawings completed!`);
+                    }
+                } else {
+                    updateStatus('Failed to save drawing', true);
+                }
+            } catch (error) {
+                updateStatus('Error uploading drawing: ' + error.message, true);
+            }
+        }
+        
+        // Event listeners for pointer events (works for mouse, touch, and stylus)
+        canvas.addEventListener('pointerdown', handlePointerDown);
+        canvas.addEventListener('pointermove', handlePointerMove);
+        canvas.addEventListener('pointerup', handlePointerUp);
+        canvas.addEventListener('pointerleave', handlePointerUp);
+        
+        // Button event listeners
+        clearBtn.addEventListener('click', clearCanvas);
+        saveBtn.addEventListener('click', saveDrawing);
+        
+        // Initialize
+        updateDrawingCount();
+    </script>
+</body>
+</html>
