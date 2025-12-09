@@ -49,7 +49,7 @@
     <h1>Draw a 5-Point Star</h1>
     <div class="info">
         <label for="username">Username: </label>
-        <input type="text" id="username" placeholder="Enter your name or code" value="">
+        <input type="text" id="username" placeholder="Enter your name or code">
     </div>
     <div class="info">
         <div id="drawingCount">Drawing: 0 / 30</div>
@@ -97,8 +97,8 @@
         
         function getPosition(e) {
             const rect = canvas.getBoundingClientRect();
-            const x = (e.clientX || e.touches?.[0]?.clientX) - rect.left;
-            const y = (e.clientY || e.touches?.[0]?.clientY) - rect.top;
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
             return { x, y };
         }
         

@@ -19,7 +19,17 @@ const server = http.createServer((req, res) => {
     } else if (req.method === 'POST' && req.url === '/upload') {
         // Handle upload
         let body = '';
+        let size = 0;
+        const maxSize = 10 * 1024 * 1024; // 10MB limit
+        
         req.on('data', chunk => {
+            size += chunk.length;
+            if (size > maxSize) {
+                res.writeHead(413, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ success: false, error: 'Payload too large' }));
+                req.destroy();
+                return;
+            }
             body += chunk.toString();
         });
         req.on('end', () => {
