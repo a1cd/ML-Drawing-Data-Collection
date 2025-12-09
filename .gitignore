@@ -1,0 +1,16 @@
+# Drawing data files (generated during testing)
+drawing_*.json
+
+# Node modules (if added in the future)
+node_modules/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
