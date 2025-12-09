@@ -1,6 +1,9 @@
 # Drawing data files (generated during testing)
 drawing_*.json
 
+# Docker data directory
+data/
+
 # Node modules (if added in the future)
 node_modules/
 

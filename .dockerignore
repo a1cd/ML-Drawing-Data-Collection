@@ -1,0 +1,25 @@
+# Git files
+.git
+.gitignore
+
+# README and documentation
+README.md
+
+# Docker files (don't copy docker files into the image)
+Dockerfile
+.dockerignore
+docker-compose.yml
+
+# Generated drawing data files
+drawing_*.json
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~

@@ -1,0 +1,10 @@
+services:
+  ml-drawing-app:
+    build: .
+    container_name: ml-drawing-data-collection
+    ports:
+      - "3000:3000"
+    volumes:
+      # Mount volume to persist drawing data
+      - ./data:/app/data
+    restart: unless-stopped
